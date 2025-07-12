@@ -1,0 +1,38 @@
+{
+  "name": "privacy-artist-income-analyzer",
+  "version": "1.0.0",
+  "description": "Privacy-preserving artist income analysis platform using Zama FHE",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "coverage": "npx hardhat coverage",
+    "deploy": "npx hardhat run scripts/deploy.js --network sepolia",
+    "deploy:localhost": "npx hardhat run scripts/deploy.js --network localhost",
+    "verify": "npx hardhat run scripts/verify.js --network sepolia",
+    "interact": "npx hardhat run scripts/interact.js --network sepolia",
+    "simulate": "npx hardhat run scripts/simulate.js --network hardhat",
+    "node": "npx hardhat node",
+    "clean": "npx hardhat clean",
+    "accounts": "npx hardhat accounts",
+    "lint:sol": "npx solhint 'contracts/**/*.sol'",
+    "lint:sol:fix": "npx solhint 'contracts/**/*.sol' --fix",
+    "dev": "npx http-server public -p 8080 -c-1 --cors"
+  },
+  "keywords": ["privacy", "artist", "income", "FHE", "zama", "blockchain", "analytics"],
+  "author": "Privacy Artist Analytics Team",
+  "license": "BSD-3-Clause-Clear",
+  "dependencies": {
+    "@fhevm/solidity": "^0.5.0",
+    "hardhat": "^2.19.0",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "ethers": "^5.7.0",
+    "solhint": "^4.0.0",
+    "solidity-coverage": "^0.8.5"
+  }
+}
