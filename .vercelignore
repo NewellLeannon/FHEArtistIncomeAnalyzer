@@ -1,0 +1,11 @@
+node_modules
+contracts
+scripts
+cache
+artifacts
+hardhat.config.js
+package.json
+package-lock.json
+public
+*.mp4
+*.png
