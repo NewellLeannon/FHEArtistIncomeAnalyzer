@@ -1,13 +1,16 @@
-# Privacy Artist Income Analyzer
+# FHE Artist Income Analyzer
 
 A confidential creative economy insights platform powered by Zama's Fully Homomorphic Encryption (FHE) technology.
 
 ## 🌐 Live Demo
 
-**Website:** [https://private-artist-income-analyze.vercel.app/](https://private-artist-income-analyze.vercel.app/)
+**Website:** [https://fhe-artist-income-analyzer.vercel.app/](https://fhe-artist-income-analyzer.vercel.app/)
 
-**GitHub Repository:** [https://github.com/NewellLeannon/PrivateArtistIncomeAnalyzer](https://github.com/NewellLeannon/PrivateArtistIncomeAnalyzer)
+**GitHub Repository:** [https://github.com/NewellLeannon/FHEArtistIncomeAnalyzer](https://github.com/NewellLeannon/FHEArtistIncomeAnalyzer)
 
+**Demo Video**: Download demo.mp4 to watch the demonstration. Direct video links are not accessible.
+
+**Demo Video:** Download `demo.mp4` from the repository to watch the platform demonstration
 ## 📋 Overview
 
 Privacy Artist Income Analyzer is a revolutionary platform that enables artists to submit their income data while maintaining complete privacy through Fully Homomorphic Encryption (FHE). The platform aggregates encrypted data to generate valuable market insights without ever exposing individual artist information.
@@ -82,7 +85,7 @@ The platform provides real-time insights including:
 
 ## 🎬 Demo Materials
 
-### PrivateArtistIncomeAnalyzer.mp4
+### FHEArtistIncomeAnalyzer.mp4
 
 A comprehensive video walkthrough showcasing:
 - Artist registration process
@@ -93,7 +96,7 @@ A comprehensive video walkthrough showcasing:
 
 *[Video demonstration available in repository]*
 
-### PrivateArtistIncomeAnalyzer.png
+### FHEArtistIncomeAnalyzer.png
 
 
 *[Screenshots available in repository]*
@@ -214,8 +217,8 @@ This project is open source and available for research and educational purposes.
 
 ## 🔗 Links
 
-- **Live Platform**: [https://private-artist-income-analyze.vercel.app/](https://private-artist-income-analyze.vercel.app/)
-- **GitHub**: [https://github.com/NewellLeannon/PrivateArtistIncomeAnalyzer](https://github.com/NewellLeannon/PrivateArtistIncomeAnalyzer)
+- **Live Platform**: [https://fhe-artist-income-analyzer.vercel.app/](https://fhe-artist-income-analyzer.vercel.app/)
+- **GitHub**: [https://github.com/NewellLeannon/FHEArtistIncomeAnalyzer](https://github.com/NewellLeannon/FHEArtistIncomeAnalyzer)
 - **Contract Address**: `0xee7272C646331Db35A7217ed4c2a3aA8b17854aE`
 - **Zama Documentation**: [https://docs.zama.ai](https://docs.zama.ai)
 - **fhEVM Documentation**: [https://docs.fhevm.zama.ai](https://docs.fhevm.zama.ai)
