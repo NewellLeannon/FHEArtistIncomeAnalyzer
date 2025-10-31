@@ -2,13 +2,17 @@
 
 A confidential creative economy insights platform powered by Zama's Fully Homomorphic Encryption (FHE) technology.
 
-## 🌐 Live Demo
+## 🌐 Live Demos
 
-**Website:** [https://fhe-artist-income-analyzer.vercel.app/](https://fhe-artist-income-analyzer.vercel.app/)
+### Production Deployments
+
+**React + Vite Version:** [https://private-artist-income-analyze.vercel.app/](https://private-artist-income-analyze.vercel.app/) ⭐ NEW
+
+**Next.js Version:** [https://fhe-artist-income-analyzer.vercel.app/](https://fhe-artist-income-analyzer.vercel.app/)
+
+### Resources
 
 **GitHub Repository:** [https://github.com/NewellLeannon/FHEArtistIncomeAnalyzer](https://github.com/NewellLeannon/FHEArtistIncomeAnalyzer)
-
-**Demo Video**: Download demo.mp4 to watch the demonstration. Direct video links are not accessible.
 
 **Demo Video:** Download `demo.mp4` from the repository to watch the platform demonstration
 ## 📋 Overview
@@ -148,13 +152,64 @@ A comprehensive video walkthrough showcasing:
 
 ## 🔬 Technical Architecture
 
-### Frontend
+### Frontend Implementations
 
-- Modern responsive web interface
+We provide **two production-ready frontend implementations** to demonstrate different modern web development approaches:
+
+#### 1. React + Vite Version (NEW) ⚡
+
+**Location:** `artist-income-react/`
+
+**Live Demo:** [https://private-artist-income-analyze.vercel.app/](https://private-artist-income-analyze.vercel.app/)
+
+**Technology Stack:**
+- **React 18** - Modern React with hooks and functional components
+- **Vite 5** - Next-generation frontend tooling with lightning-fast HMR
+- **TypeScript 5** - Full type safety throughout the application
+- **Ethers.js 5.7** - Ethereum wallet and contract interaction
+- **fhevmjs 0.5** - Zama's FHE library for client-side encryption
+
+**Architecture:**
+- Fully componentized React architecture with 6 specialized components:
+  - `ArtistRegistration.tsx` - Privacy-preserving artist registration
+  - `IncomeSubmission.tsx` - Encrypted income data submission form
+  - `CreativeAnalytics.tsx` - Multi-category analytics tracking
+  - `PlatformStats.tsx` - Real-time platform statistics display
+  - `AnalysisControls.tsx` - Analysis generation and report finalization
+  - `ProfileInfo.tsx` - User profile management
+- Modern gradient-based UI with glassmorphism effects
+- Responsive design for all device sizes
+- Real-time transaction status updates
 - Web3 wallet integration (MetaMask)
-- Real-time blockchain interaction
-- Intuitive data submission forms
-- Live statistics dashboard
+
+**Development Experience:**
+```bash
+cd artist-income-react
+npm install
+npm run dev        # Start Vite dev server (ultra-fast HMR)
+npm run build      # Production build
+```
+
+**Key Benefits:**
+- ⚡ Ultra-fast development with Vite's instant HMR
+- 📦 Smaller bundle size compared to Next.js
+- 🎯 Simple deployment (static files)
+- 🛠️ Excellent developer experience
+- 🚀 Optimized production builds
+
+#### 2. Next.js Version
+
+**Technology Stack:**
+- Next.js 14 with App Router
+- React 18
+- TailwindCSS
+- Ethers.js
+
+**Features:**
+- Server-side rendering (SSR) support
+- API routes for backend logic
+- Optimized SEO
+- Image optimization
 
 ### Smart Contract Layer
 
@@ -223,6 +278,73 @@ This project is open source and available for research and educational purposes.
 - **Zama Documentation**: [https://docs.zama.ai](https://docs.zama.ai)
 - **fhEVM Documentation**: [https://docs.fhevm.zama.ai](https://docs.fhevm.zama.ai)
 
+## 🎯 Project Structure
+
+```
+D:\
+├── artist-income-react/          # React + Vite implementation ⭐ NEW
+│   ├── src/
+│   │   ├── components/          # React components
+│   │   │   ├── ArtistRegistration.tsx
+│   │   │   ├── IncomeSubmission.tsx
+│   │   │   ├── CreativeAnalytics.tsx
+│   │   │   ├── PlatformStats.tsx
+│   │   │   ├── AnalysisControls.tsx
+│   │   │   └── ProfileInfo.tsx
+│   │   ├── App.tsx              # Main application
+│   │   ├── main.tsx             # Entry point
+│   │   └── App.css              # Styles
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── README.md
+│
+├── fhevm-react-template/        # Complete FHEVM SDK template
+│   ├── packages/fhevm-sdk/      # Universal FHEVM SDK
+│   ├── examples/                # Multiple example implementations
+│   ├── templates/               # Starter templates
+│   └── docs/                    # Documentation
+│
+├── contracts/                   # Smart contracts
+├── demo.mp4                     # Platform demonstration
+└── README.md                    # This file
+```
+
+## 🚀 Quick Start
+
+### Option 1: React + Vite (Recommended for Development)
+
+```bash
+cd artist-income-react
+npm install
+npm run dev
+```
+
+Access at: `http://localhost:5173`
+
+### Option 2: FHEVM Template Examples
+
+```bash
+cd fhevm-react-template/examples/artist-income-nextjs
+npm install
+npm run dev
+```
+
+## 📊 Implementation Comparison
+
+| Feature | React + Vite | Next.js |
+|---------|-------------|---------|
+| **Framework** | React 18 | Next.js 14 |
+| **Build Tool** | Vite 5 | Next.js |
+| **Dev Speed** | ⚡ Ultra Fast | Fast |
+| **Bundle Size** | Small | Medium |
+| **SSR Support** | ❌ | ✅ |
+| **API Routes** | ❌ | ✅ |
+| **SEO** | Basic | Advanced |
+| **Deployment** | Static Files | Vercel/Node |
+| **HMR Speed** | Instant | Fast |
+| **Best For** | SPA, Fast Dev | Full-stack Apps |
+| **Live Demo** | ✅ | ✅ |
+
 ## 💡 Future Enhancements
 
 - Multi-chain support for broader adoption
@@ -231,9 +353,37 @@ This project is open source and available for research and educational purposes.
 - Collaborative research tools for academic use
 - API access for third-party integrations
 - Mobile application for easier data submission
+- Vue.js implementation (planned)
+- Svelte implementation (planned)
+
+---
+
+## 🏗️ Built With
+
+**Frontend:**
+- React 18 / Next.js 14
+- Vite 5
+- TypeScript 5
+- Ethers.js 5.7
+
+**Blockchain:**
+- Zama fhEVM
+- Solidity
+- Sepolia Testnet
+
+**Encryption:**
+- fhevmjs 0.5
+- Fully Homomorphic Encryption (FHE)
 
 ---
 
 **Built with privacy at its core. Powered by Zama FHE technology.**
 
 *Protecting artist privacy while advancing creative economy research.*
+
+## 📞 Support & Contact
+
+For questions, issues, or contributions:
+- Open an issue on GitHub
+- Check the documentation in `fhevm-react-template/docs/`
+- Review example implementations in `fhevm-react-template/examples/`
