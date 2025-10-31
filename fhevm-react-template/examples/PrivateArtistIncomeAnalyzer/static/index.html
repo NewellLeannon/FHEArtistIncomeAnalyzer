@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Artist Income Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 191, 255, 0.8), 2px 2px 4px rgba(0,0,0,0.3);
+            color: #00bfff;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(30, 144, 255, 0.15), rgba(0, 191, 255, 0.08));
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(0, 191, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 191, 255, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 191, 255, 0.3);
+            border-color: rgba(0, 191, 255, 0.5);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #00bfff;
+            text-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #00bfff 0%, #1e90ff 100%);
+            border: 2px solid rgba(0, 191, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 191, 255, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 191, 255, 0.5);
+            border-color: rgba(0, 191, 255, 0.6);
+            background: linear-gradient(45deg, #1e90ff 0%, #00bfff 100%);
+        }
+
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00bfff;
+            text-shadow: 0 0 15px rgba(0, 191, 255, 0.6);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .status {
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .status.success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            color: #4caf50;
+        }
+
+        .status.error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            color: #f44336;
+        }
+
+        .status.warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+            color: #ffc107;
+        }
+
+        .privacy-notice {
+            background: linear-gradient(145deg, rgba(0, 191, 255, 0.1), rgba(30, 144, 255, 0.05));
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border-left: 4px solid #00bfff;
+            border: 1px solid rgba(0, 191, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 191, 255, 0.1);
+        }
+
+        .privacy-notice h4 {
+            color: #00bfff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+        }
+
+        .analytics-section {
+            margin-top: 30px;
+        }
+
+        .income-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .category-input {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .category-input label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .category-input input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Privacy Artist Income Analyzer</h1>
+            <p>Confidential creative economy insights powered by Zama FHE technology</p>
+        </div>
+
+        <div id="connectionStatus" class="status warning">
+            ⚠️ Please connect your wallet to continue
+        </div>
+
+        <div class="dashboard">
+            <!-- Artist Registration Card -->
+            <div class="card">
+                <h3>🎭 Artist Registration</h3>
+                <div class="form-group">
+                    <label for="artistId">Anonymous Artist ID:</label>
+                    <input type="text" id="artistId" placeholder="Enter your unique artist identifier" />
+                </div>
+                <button class="btn" onclick="registerArtist()" id="registerBtn">Register as Artist</button>
+                <div id="registrationStatus"></div>
+            </div>
+
+            <!-- Income Data Submission Card -->
+            <div class="card">
+                <h3>💰 Income Data Submission</h3>
+                <div class="form-group">
+                    <label for="totalIncome">Total Income (USD):</label>
+                    <input type="number" id="totalIncome" placeholder="Your total creative income" />
+                </div>
+                <div class="form-group">
+                    <label for="artworksSold">Artworks Sold:</label>
+                    <input type="number" id="artworksSold" placeholder="Number of artworks sold" />
+                </div>
+                <div class="form-group">
+                    <label for="averagePrice">Average Artwork Price:</label>
+                    <input type="number" id="averagePrice" placeholder="Average price per artwork" />
+                </div>
+                <div class="form-group">
+                    <label for="royaltyEarnings">Royalty Earnings:</label>
+                    <input type="number" id="royaltyEarnings" placeholder="Royalty income" />
+                </div>
+                <div class="form-group">
+                    <label for="commissionEarnings">Commission Earnings:</label>
+                    <input type="number" id="commissionEarnings" placeholder="Commission income" />
+                </div>
+                <button class="btn" onclick="submitIncomeData()" id="submitIncomeBtn">Submit Private Data</button>
+            </div>
+
+            <!-- Creative Analytics Card -->
+            <div class="card">
+                <h3>🎨 Creative Analytics</h3>
+                <div class="income-categories">
+                    <div class="category-input">
+                        <label>Digital Art Sales:</label>
+                        <input type="number" id="digitalArt" placeholder="0" />
+                    </div>
+                    <div class="category-input">
+                        <label>Physical Art Sales:</label>
+                        <input type="number" id="physicalArt" placeholder="0" />
+                    </div>
+                    <div class="category-input">
+                        <label>NFT Sales:</label>
+                        <input type="number" id="nftSales" placeholder="0" />
+                    </div>
+                    <div class="category-input">
+                        <label>Licensing Revenue:</label>
+                        <input type="number" id="licensing" placeholder="0" />
+                    </div>
+                    <div class="category-input">
+                        <label>Workshop Earnings:</label>
+                        <input type="number" id="workshops" placeholder="0" />
+                    </div>
+                    <div class="category-input">
+                        <label>Custom Commissions:</label>
+                        <input type="number" id="commissions" placeholder="0" />
+                    </div>
+                </div>
+                <button class="btn" onclick="submitCreativeAnalytics()" id="submitAnalyticsBtn">Submit Analytics</button>
+            </div>
+
+            <!-- Platform Statistics Card -->
+            <div class="card">
+                <h3>📊 Platform Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalArtists">-</div>
+                        <div class="stat-label">Registered Artists</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="currentSession">-</div>
+                        <div class="stat-label">Analysis Session</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="lastReport">-</div>
+                        <div class="stat-label">Last Report</div>
+                    </div>
+                </div>
+                <button class="btn" onclick="loadPlatformStats()">Refresh Statistics</button>
+            </div>
+
+            <!-- Analysis Controls Card -->
+            <div class="card">
+                <h3>🔬 Income Analysis</h3>
+                <p style="margin-bottom: 20px; opacity: 0.8;">Generate confidential market insights from encrypted artist data.</p>
+                <button class="btn" onclick="generateAnalysis()" id="generateBtn">Generate Analysis</button>
+                <button class="btn" onclick="finalizeReport()" id="finalizeBtn" style="margin-top: 10px;">Finalize Report</button>
+                <div id="analysisStatus" style="margin-top: 20px;"></div>
+            </div>
+
+            <!-- Profile Information Card -->
+            <div class="card">
+                <h3>👤 My Profile</h3>
+                <div id="profileInfo">
+                    <p style="opacity: 0.7;">Connect wallet and register to view profile information.</p>
+                </div>
+                <button class="btn" onclick="loadMyProfile()">Load Profile</button>
+            </div>
+        </div>
+
+        <div class="privacy-notice">
+            <h4>🔐 Privacy & Security</h4>
+            <p>
+                This platform uses Zama's Fully Homomorphic Encryption (FHE) technology to ensure that your
+                income data remains completely private. Your sensitive financial information is encrypted
+                end-to-end and can only be used for aggregate analysis without revealing individual details.
+                No personal income data is ever exposed to other users, platform operators, or third parties.
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

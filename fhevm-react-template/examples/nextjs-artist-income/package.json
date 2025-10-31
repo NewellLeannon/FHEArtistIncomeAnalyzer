@@ -1,0 +1,25 @@
+{
+  "name": "nextjs-artist-income",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@fhevm/sdk": "workspace:*",
+    "next": "14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "ethers": "^5.7.2",
+    "fhevmjs": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "typescript": "^5"
+  }
+}
