@@ -1,0 +1,33 @@
+{
+  "name": "fhevm-react-template",
+  "version": "1.0.0",
+  "description": "Universal FHEVM SDK and template collection for building confidential dApps",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "build:sdk": "npm run build --workspace=@fhevm/sdk",
+    "dev": "npm run dev --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "clean": "rm -rf node_modules packages/*/node_modules examples/*/node_modules packages/*/dist"
+  },
+  "keywords": [
+    "fhevm",
+    "fhe",
+    "encryption",
+    "privacy",
+    "zama",
+    "sdk",
+    "template"
+  ],
+  "author": "FHEVM SDK Contributors",
+  "license": "BSD-3-Clause-Clear",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "turbo": "^1.10.0"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "name": "@fhevm/sdk",
+  "version": "1.0.0",
+  "description": "Universal FHEVM SDK for building confidential dApps",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./react": {
+      "require": "./dist/react/index.js",
+      "import": "./dist/react/index.mjs",
+      "types": "./dist/react/index.d.ts"
+    },
+    "./vue": {
+      "require": "./dist/vue/index.js",
+      "import": "./dist/vue/index.mjs",
+      "types": "./dist/vue/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "build:react": "tsup src/react/index.ts --format cjs,esm --dts --out-dir dist/react",
+    "build:vue": "tsup src/vue/index.ts --format cjs,esm --dts --out-dir dist/vue",
+    "build:all": "npm run build && npm run build:react && npm run build:vue",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "jest"
+  },
+  "keywords": [
+    "fhevm",
+    "fhe",
+    "encryption",
+    "privacy",
+    "zama",
+    "blockchain",
+    "web3",
+    "sdk"
+  ],
+  "author": "FHEVM SDK Contributors",
+  "license": "BSD-3-Clause-Clear",
+  "peerDependencies": {
+    "ethers": "^5.7.0 || ^6.0.0",
+    "react": "^18.0.0",
+    "vue": "^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "fhevmjs": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0"
+  }
+}
