@@ -10,6 +10,11 @@ contract PrivateArtistIncomeAnalyzer is SepoliaConfig {
     uint256 public totalArtists;
     uint256 public analysisSessionId;
 
+    // Timeout protection constants
+    uint256 public constant MIN_ANALYSIS_DURATION = 1 days;
+    uint256 public constant MAX_ANALYSIS_DURATION = 90 days;
+    uint256 public constant DECRYPTION_TIMEOUT = 7 days;
+
     struct ArtistProfile {
         string artistId; // Anonymous identifier
         euint64 totalIncome;
@@ -29,6 +34,11 @@ contract PrivateArtistIncomeAnalyzer is SepoliaConfig {
         uint256 reportTimestamp;
         uint256 artistCount;
         bool isFinalized;
+        uint256 decryptionRequestId;
+        uint256 decryptionRequestTime;
+        uint256 expiryTime;
+        bool decryptionFailed;
+        uint64 revealedTotalIncome;
     }
 
     struct CreativeAnalytics {
@@ -45,6 +55,13 @@ contract PrivateArtistIncomeAnalyzer is SepoliaConfig {
     mapping(uint256 => IncomeReport) public incomeReports;
     mapping(address => bool) public authorizedAnalysts;
 
+    // Gateway callback tracking
+    mapping(uint256 => uint256) internal sessionIdByRequestId;
+    mapping(uint256 => bool) public callbackExecuted;
+
+    // Refund tracking for failed decryptions
+    mapping(uint256 => mapping(address => bool)) public hasClaimedRefund;
+
     address[] public registeredArtists;
 
     event ArtistRegistered(address indexed artist, string artistId);
@@ -52,6 +69,10 @@ contract PrivateArtistIncomeAnalyzer is SepoliaConfig {
     event AnalysisCompleted(uint256 indexed sessionId, uint256 artistCount);
     event ReportGenerated(uint256 indexed sessionId, uint256 timestamp);
     event AnalystAuthorized(address indexed analyst);
+    event DecryptionRequested(uint256 indexed sessionId, uint256 requestId, uint256 timestamp);
+    event DecryptionCompleted(uint256 indexed sessionId, uint256 requestId, uint64 totalIncome);
+    event DecryptionFailed(uint256 indexed sessionId, uint256 requestId, string reason);
+    event RefundClaimed(uint256 indexed sessionId, address indexed artist, string reason);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Not authorized");
@@ -74,10 +95,23 @@ contract PrivateArtistIncomeAnalyzer is SepoliaConfig {
         totalArtists = 0;
     }
 
+    // Input validation: Check string length
+    function _validateStringLength(string calldata str, uint256 minLength, uint256 maxLength) internal pure {
+        uint256 length = bytes(str).length;
+        require(length >= minLength && length <= maxLength, "Invalid string length");
+    }
+
+    // Input validation: Check value range
+    function _validateValueRange(uint256 value, uint256 min, uint256 max) internal pure {
+        require(value >= min && value <= max, "Value out of range");
+    }
+
     // Register as an artist with anonymous identifier
     function registerArtist(string calldata _artistId) external {
         require(!artistProfiles[msg.sender].isActive, "Already registered");
-        require(bytes(_artistId).length > 0, "Invalid artist ID");
+
+        // Input validation: artist ID must be 3-64 characters
+        _validateStringLength(_artistId, 3, 64);
 
         artistProfiles[msg.sender] = ArtistProfile({
             artistId: _artistId,
@@ -185,8 +219,12 @@ contract PrivateArtistIncomeAnalyzer is SepoliaConfig {
     }
 
     // Generate aggregated income analysis (only for authorized analysts)
-    function generateIncomeAnalysis() external onlyAuthorized {
+    function generateIncomeAnalysis(uint256 duration) external onlyAuthorized {
         require(totalArtists > 0, "No artists registered");
+        require(totalArtists <= 10000, "Too many artists for single analysis");
+
+        // Validate duration with timeout protection
+        _validateValueRange(duration, MIN_ANALYSIS_DURATION, MAX_ANALYSIS_DURATION);
 
         euint64 totalPlatformIncome = FHE.asEuint64(0);
 
@@ -198,7 +236,7 @@ contract PrivateArtistIncomeAnalyzer is SepoliaConfig {
             }
         }
 
-        // Create income report
+        // Create income report with timeout protection
         incomeReports[analysisSessionId] = IncomeReport({
             totalPlatformIncome: totalPlatformIncome,
             averageArtistIncome: FHE.asEuint32(0), // Will be calculated
@@ -206,7 +244,12 @@ contract PrivateArtistIncomeAnalyzer is SepoliaConfig {
             topPercentileIncome: FHE.asEuint32(0), // Will be calculated
             reportTimestamp: block.timestamp,
             artistCount: totalArtists,
-            isFinalized: false
+            isFinalized: false,
+            decryptionRequestId: 0,
+            decryptionRequestTime: 0,
+            expiryTime: block.timestamp + duration,
+            decryptionFailed: false,
+            revealedTotalIncome: 0
         });
 
         // Grant permissions for the report
@@ -215,45 +258,111 @@ contract PrivateArtistIncomeAnalyzer is SepoliaConfig {
         emit AnalysisCompleted(analysisSessionId, totalArtists);
     }
 
-    // Finalize report with decrypted aggregate data (async callback)
-    function finalizeReport() external onlyAuthorized {
-        require(!incomeReports[analysisSessionId].isFinalized, "Report already finalized");
+    // Request decryption via Gateway callback (async)
+    function requestReportDecryption() external onlyAuthorized {
+        IncomeReport storage report = incomeReports[analysisSessionId];
+        require(!report.isFinalized, "Report already finalized");
+        require(report.decryptionRequestId == 0, "Decryption already requested");
+        require(block.timestamp >= report.expiryTime, "Analysis period not expired");
 
-        // Request decryption for aggregate statistics
+        // Request decryption for aggregate statistics using Gateway callback
         bytes32[] memory cts = new bytes32[](1);
-        cts[0] = FHE.toBytes32(incomeReports[analysisSessionId].totalPlatformIncome);
-        FHE.requestDecryption(cts, this.processReportFinalization.selector);
+        cts[0] = FHE.toBytes32(report.totalPlatformIncome);
+
+        uint256 requestId = FHE.requestDecryption(cts, this.decryptionCallback.selector);
+
+        report.decryptionRequestId = requestId;
+        report.decryptionRequestTime = block.timestamp;
+        sessionIdByRequestId[requestId] = analysisSessionId;
+
+        emit DecryptionRequested(analysisSessionId, requestId, block.timestamp);
     }
 
-    // Process decrypted report data
-    function processReportFinalization(
+    // Gateway callback handler for decryption results
+    function decryptionCallback(
         uint256 requestId,
-        bytes memory decryptedData,
-        bytes memory signatures
+        bytes memory cleartexts,
+        bytes memory decryptionProof
     ) external {
-        // Verify signatures with 3 parameters
-        FHE.checkSignatures(requestId, decryptedData, signatures);
+        // Verify cryptographic signatures from Gateway
+        FHE.checkSignatures(requestId, cleartexts, decryptionProof);
 
-        // Decode the decrypted data to get totalIncome
-        uint64 totalIncome = abi.decode(decryptedData, (uint64));
+        uint256 sessionId = sessionIdByRequestId[requestId];
+        require(sessionId > 0, "Invalid request ID");
 
-        incomeReports[analysisSessionId].isFinalized = true;
+        IncomeReport storage report = incomeReports[sessionId];
+        require(!report.isFinalized, "Report already finalized");
 
-        emit ReportGenerated(analysisSessionId, block.timestamp);
+        // Decode the decrypted cleartext data
+        uint64 revealedTotalIncome = abi.decode(cleartexts, (uint64));
+
+        // Finalize report with revealed data
+        report.revealedTotalIncome = revealedTotalIncome;
+        report.isFinalized = true;
+        callbackExecuted[requestId] = true;
+
+        emit DecryptionCompleted(sessionId, requestId, revealedTotalIncome);
+        emit ReportGenerated(sessionId, block.timestamp);
+
+        // Move to next session only if this is the current session
+        if (sessionId == analysisSessionId) {
+            analysisSessionId++;
+        }
+    }
+
+    // Emergency: Mark decryption as failed after timeout
+    function markDecryptionFailed() external onlyAuthorized {
+        IncomeReport storage report = incomeReports[analysisSessionId];
+        require(report.decryptionRequestId != 0, "No decryption requested");
+        require(!report.isFinalized, "Report already finalized");
+        require(
+            block.timestamp >= report.decryptionRequestTime + DECRYPTION_TIMEOUT,
+            "Timeout period not reached"
+        );
+
+        report.decryptionFailed = true;
+        report.isFinalized = true;
+
+        emit DecryptionFailed(analysisSessionId, report.decryptionRequestId, "Timeout exceeded");
 
         // Move to next session
         analysisSessionId++;
     }
 
+    // Claim refund if decryption failed
+    function claimRefundForFailedDecryption(uint256 sessionId) external onlyRegisteredArtist {
+        IncomeReport storage report = incomeReports[sessionId];
+        require(report.decryptionFailed, "Decryption did not fail");
+        require(!hasClaimedRefund[sessionId][msg.sender], "Refund already claimed");
+
+        // Mark as claimed to prevent double-refund
+        hasClaimedRefund[sessionId][msg.sender] = true;
+
+        emit RefundClaimed(sessionId, msg.sender, "Decryption failed");
+
+        // Note: In real implementation, this would transfer tokens/fees back to artist
+        // For privacy analysis platform, refund could be gas rebate or analysis credits
+    }
+
     // Authorize analyst for data access
     function authorizeAnalyst(address _analyst) external onlyOwner {
+        require(_analyst != address(0), "Invalid analyst address");
+        require(!authorizedAnalysts[_analyst], "Already authorized");
         authorizedAnalysts[_analyst] = true;
         emit AnalystAuthorized(_analyst);
     }
 
     // Revoke analyst authorization
     function revokeAnalyst(address _analyst) external onlyOwner {
+        require(authorizedAnalysts[_analyst], "Not authorized");
         authorizedAnalysts[_analyst] = false;
+    }
+
+    // Transfer ownership with validation
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "Invalid owner address");
+        require(newOwner != owner, "Already owner");
+        owner = newOwner;
     }
 
     // Get artist profile info (encrypted data visible only to artist)
@@ -292,13 +401,35 @@ contract PrivateArtistIncomeAnalyzer is SepoliaConfig {
     function getReportInfo(uint256 _sessionId) external view returns (
         uint256 reportTimestamp,
         uint256 artistCount,
-        bool isFinalized
+        bool isFinalized,
+        bool decryptionFailed,
+        uint64 revealedTotalIncome,
+        uint256 expiryTime
     ) {
         IncomeReport storage report = incomeReports[_sessionId];
         return (
             report.reportTimestamp,
             report.artistCount,
-            report.isFinalized
+            report.isFinalized,
+            report.decryptionFailed,
+            report.revealedTotalIncome,
+            report.expiryTime
+        );
+    }
+
+    // Get decryption status for a session
+    function getDecryptionStatus(uint256 _sessionId) external view returns (
+        uint256 decryptionRequestId,
+        uint256 decryptionRequestTime,
+        bool callbackExecuted,
+        bool decryptionFailed
+    ) {
+        IncomeReport storage report = incomeReports[_sessionId];
+        return (
+            report.decryptionRequestId,
+            report.decryptionRequestTime,
+            callbackExecuted[report.decryptionRequestId],
+            report.decryptionFailed
         );
     }
 
